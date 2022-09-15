@@ -8,6 +8,7 @@ const connectFlash = require("connect-flash");
 const passport = require("passport");
 const connectMongo = require("connect-mongo");
 const connectEnsureLogin = require("connect-ensure-login");
+const { roles } = require("./utils/roles");
 
 //Initialization
 const app = express();
@@ -58,7 +59,14 @@ app.use(
   connectEnsureLogin.ensureLoggedIn({ redirectTo: "/auth/login" }),
   require("./routes/user.route")
 );
+app.use(
+  "/admin",
+  connectEnsureLogin.ensureLoggedIn({ redirectTo: "/auth/login" }),
+  ensureAdmin,
+  require("./routes/admin.route")
+);
 
+//404 Handler
 app.use((req, res, next) => {
   next(createHttpError.NotFound());
 });
@@ -94,3 +102,21 @@ mongoose
 //     res.redirect("/auth/login");
 //   }
 // }
+
+function ensureAdmin(req, res, next) {
+  if (req.user.role === roles.admin) {
+    next();
+  } else {
+    req.flash("warning", "You are not authorized to view the route");
+    res.redirect("/");
+  }
+}
+
+function ensureManager(req, res, next) {
+  if (req.user.role === roles.admin) {
+    next();
+  } else {
+    req.flash("warning", "You are not authorized to view the route");
+    res.redirect("/");
+  }
+}
