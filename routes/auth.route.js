@@ -10,7 +10,14 @@ router.post("/login", async (req, res, next) => {
 });
 
 router.get("/register", async (req, res, next) => {
-  res.render("Register");
+  // req.flash("error", "some error");
+  // req.flash("error", "some error2");
+  // req.flash("info", "some value");
+  // req.flash("warning", "some value");
+  // req.flash("success", "some value");
+  // const messages = req.flash();
+  // res.redirect("/auth/login");
+  res.render("register");
 });
 
 router.post("/register", async (req, res, next) => {
