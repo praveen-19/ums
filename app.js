@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 const session = require("express-session");
 const connectFlash = require("connect-flash");
+const passport = require("passport");
 
 //Initialization
 const app = express();
@@ -27,6 +28,12 @@ app.use(
   })
 );
 
+// For Passport JS Authentication
+app.use(passport.initialize());
+app.use(passport.session());
+require("./utils/passport.auth");
+
+// Connect Flash Messages
 app.use(connectFlash());
 app.use((req, res, next) => {
   res.locals.messages = req.flash();
@@ -48,8 +55,10 @@ app.use((error, req, res, next) => {
   res.render("error_404", { error });
 });
 
+// Configure PORT
 const PORT = process.env.PORT || 3000;
 
+// Database Connection for Authentication
 mongoose
   .connect(process.env.MONGO_URI, {
     dbName: process.env.DB_NAME,

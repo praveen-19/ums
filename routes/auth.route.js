@@ -1,14 +1,20 @@
 const router = require("express").Router();
 const User = require("../models/user.model");
 const { body, validationResult } = require("express-validator");
+const passport = require("passport");
 
 router.get("/login", async (req, res, next) => {
   res.render("login");
 });
 
-router.post("/login", async (req, res, next) => {
-  res.send("Login Post");
-});
+router.post(
+  "/login",
+  passport.authenticate("local", {
+    successRedirect: "/user/profile",
+    failureRedirect: "/auth/login",
+    failureFlash: true,
+  })
+);
 
 router.get("/register", async (req, res, next) => {
   res.render("register");
@@ -66,7 +72,12 @@ router.post(
 );
 
 router.get("/logout", async (req, res, next) => {
-  res.send("Logout");
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
+  });
 });
 
 module.exports = router;
