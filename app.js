@@ -7,7 +7,7 @@ const session = require("express-session");
 const connectFlash = require("connect-flash");
 const passport = require("passport");
 const connectMongo = require("connect-mongo");
-const connectEnsureLogin = require("connect-ensure-login");
+const { ensureLoggedIn } = require("connect-ensure-login");
 const { roles } = require("./utils/roles");
 
 //Initialization
@@ -56,14 +56,26 @@ app.use("/", require("./routes/index.route"));
 app.use("/auth", require("./routes/auth.route"));
 app.use(
   "/user",
-  connectEnsureLogin.ensureLoggedIn({ redirectTo: "/auth/login" }),
+  ensureLoggedIn({ redirectTo: "/auth/login" }),
   require("./routes/user.route")
 );
 app.use(
   "/admin",
-  connectEnsureLogin.ensureLoggedIn({ redirectTo: "/auth/login" }),
+  ensureLoggedIn({ redirectTo: "/auth/login" }),
   ensureAdmin,
   require("./routes/admin.route")
+);
+app.use(
+  "/manager",
+  ensureLoggedIn({ redirectTo: "/auth/login" }),
+  ensureManager,
+  require("./routes/manager.route")
+);
+app.use(
+  "/teamLead",
+  ensureLoggedIn({ redirectTo: "/auth/login" }),
+  ensureTeamLead,
+  require("./routes/teamLead.route")
 );
 
 //404 Handler
@@ -113,7 +125,16 @@ function ensureAdmin(req, res, next) {
 }
 
 function ensureManager(req, res, next) {
-  if (req.user.role === roles.admin) {
+  if (req.user.role === roles.manager) {
+    next();
+  } else {
+    req.flash("warning", "You are not authorized to view the route");
+    res.redirect("/");
+  }
+}
+
+function ensureTeamLead(req, res, next) {
+  if (req.user.role === roles.teamLead) {
     next();
   } else {
     req.flash("warning", "You are not authorized to view the route");

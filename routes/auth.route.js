@@ -2,11 +2,12 @@ const router = require("express").Router();
 const User = require("../models/user.model");
 const { body, validationResult } = require("express-validator");
 const passport = require("passport");
-const connectEnsure = require("connect-ensure-login");
+const { ensureLoggedIn, ensureLoggedOut } = require("connect-ensure-login");
+const { registerValidator } = require("../utils/validators");
 
 router.get(
   "/login",
-  connectEnsure.ensureLoggedOut({ redirectTo: "/" }),
+  ensureLoggedOut({ redirectTo: "/" }),
   async (req, res, next) => {
     res.render("login");
   }
@@ -14,7 +15,7 @@ router.get(
 
 router.post(
   "/login",
-  connectEnsure.ensureLoggedOut({ redirectTo: "/" }),
+  ensureLoggedOut({ redirectTo: "/" }),
   passport.authenticate("local", {
     // successRedirect: "/",
     successReturnToOrRedirect: "/",
@@ -25,7 +26,7 @@ router.post(
 
 router.get(
   "/register",
-  connectEnsure.ensureLoggedOut({ redirectTo: "/" }),
+  ensureLoggedOut({ redirectTo: "/" }),
   async (req, res, next) => {
     res.render("register");
   }
@@ -33,22 +34,8 @@ router.get(
 
 router.post(
   "/register",
-  connectEnsure.ensureLoggedOut({ redirectTo: "/" }),
-  [
-    body("email")
-      .trim()
-      .isEmail()
-      .withMessage("Invalid Email")
-      .normalizeEmail()
-      .toLowerCase(),
-    body("password").trim().isLength(8).withMessage("Minimum 8 char required"),
-    body("password2").custom((value, { req }) => {
-      if (value !== req.body.password) {
-        throw new Error("Password do not match");
-      }
-      return true;
-    }),
-  ],
+  ensureLoggedOut({ redirectTo: "/" }),
+  registerValidator,
   async (req, res, next) => {
     try {
       const errors = validationResult(req);
@@ -83,16 +70,25 @@ router.post(
   }
 );
 
+// router.get(
+//   "/logout",
+//   connectEnsure.ensureLoggedIn({ redirectTo: "/" }),
+//   async (req, res, next) => {
+//     req.logout(function (err) {
+//       if (err) {
+//         return next(err);
+//       }
+//       res.redirect("/");
+//     });
+//   }
+// );
+
 router.get(
   "/logout",
-  connectEnsure.ensureLoggedIn({ redirectTo: "/" }),
+  ensureLoggedIn({ redirectTo: "/" }),
   async (req, res, next) => {
-    req.logout(function (err) {
-      if (err) {
-        return next(err);
-      }
-      res.redirect("/");
-    });
+    req.logout();
+    res.redirect("/");
   }
 );
 

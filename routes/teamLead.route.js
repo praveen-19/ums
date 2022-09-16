@@ -5,9 +5,9 @@ const { roles } = require("../utils/roles");
 
 router.get("/users", async (req, res, next) => {
   try {
-    const users = await User.find();
+    const users = await User.find({ role: "AGENT" });
     // res.send(users);
-    res.render("manage-users-admin", { users });
+    res.render("manage-users-lead", { users });
   } catch (error) {
     next(error);
   }
@@ -19,7 +19,7 @@ router.get("/user/:id", async (req, res, next) => {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       req.flash("error", "Invalid ID");
-      res.redirect("/admin/users");
+      res.redirect("/teamLead/users");
       return;
     }
     const person = await User.findById(id);
