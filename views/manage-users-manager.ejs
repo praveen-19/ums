@@ -17,8 +17,6 @@
                  <form action="/manager/update-role" method="post" class="manage-user-form">
                      <input type="hidden" name="id" value="<%= user.id %>"/>
                      <select name="role" id="role">
-                         <option value="ADMIN" <%= user.role === 'ADMIN' ? 'selected' : '' %>>Admin</option>
-                         <option value="MANAGER" <%= user.role === 'MANAGER' ? 'selected' : '' %>>Manager</option>
                          <option value="TEAM_LEAD" <%= user.role === 'TEAM_LEAD' ? 'selected' : '' %>>Team Lead</option>
                          <option value="AGENT" <%= user.role === 'AGENT' ? 'selected' : '' %>>Agent</option>
                      </select>
